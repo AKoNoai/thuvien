@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -114,6 +115,7 @@ function App() {
         <SpringEffect />
 
         <AppRoutes />
+        <SpeedInsights />
       </AuthProvider>
     </BrowserRouter>
   );
