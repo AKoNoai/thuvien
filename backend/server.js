@@ -5,7 +5,12 @@ const path = require('path');
 require('dotenv').config();
 
 const dns = require('dns');
-dns.setServers(['0.0.0.0', '8.8.8.8']);
+try {
+  // Avoid invalid default that can crash in some hosting environments
+  dns.setServers(['8.8.8.8']);
+} catch (e) {
+  console.warn('⚠️ DNS setServers ignored:', e && e.message);
+}
 
 const app = express();
 
@@ -24,12 +29,16 @@ app.use((req, res, next) => {
 });
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ MongoDB connected successfully'))
-  .catch(err => {
-    console.error('❌ MongoDB connection error:', err);
-    process.exit(1);
-  });
+if (process.env.MONGODB_URI) {
+  mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log('✅ MongoDB connected successfully'))
+    .catch(err => {
+      console.error('❌ MongoDB connection error:', err);
+      // Do NOT exit process in serverless environments; handle errors gracefully
+    });
+} else {
+  console.warn('⚠️ MONGODB_URI not set. Skipping MongoDB connection.');
+}
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -93,7 +102,15 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+// When deployed on Vercel (serverless), do not call `app.listen`.
+// Export the Express app so the Vercel Node builder can handle requests.
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
+} else {
+  console.log('ℹ️ Running in Vercel serverless environment; exporting app instead of listening.');
+}
+
+module.exports = app;
