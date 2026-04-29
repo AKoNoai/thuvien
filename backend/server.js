@@ -122,15 +122,31 @@ app.use((req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT || 5000);
+
+function startServer(port) {
+  const server = app.listen(port, () => {
+    console.log(`🚀 Server running on port ${port}`);
+    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE' && !process.env.VERCEL) {
+      const nextPort = port + 1;
+      console.warn(`⚠️ Port ${port} is busy, retrying on ${nextPort}...`);
+      startServer(nextPort);
+      return;
+    }
+
+    console.error('❌ Server listen error:', err);
+    process.exit(1);
+  });
+}
 
 // When deployed on Vercel (serverless), do not call `app.listen`.
 // Export the Express app so the Vercel Node builder can handle requests.
 if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  });
+  startServer(PORT);
 } else {
   console.log('ℹ️ Running in Vercel serverless environment; exporting app instead of listening.');
 }
