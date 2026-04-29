@@ -28,17 +28,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Database connection
-if (process.env.MONGODB_URI) {
-  mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ MongoDB connected successfully'))
-    .catch(err => {
-      console.error('❌ MongoDB connection error:', err);
-      // Do NOT exit process in serverless environments; handle errors gracefully
-    });
-} else {
-  console.warn('⚠️ MONGODB_URI not set. Skipping MongoDB connection.');
-}
+// Database connection (serverless-friendly)
+const connectDB = require('./utils/db');
+connectDB(process.env.MONGODB_URI)
+  .then(() => console.log('✅ MongoDB connected successfully (cached)'))
+  .catch(err => console.warn('⚠️ MongoDB connection warning:', err && err.message));
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -56,6 +50,15 @@ app.get('/', (req, res) => {
       books: '/api/books',
       borrows: '/api/borrows'
     }
+  });
+});
+
+// Health check
+app.get('/api/health', async (req, res) => {
+  const state = mongoose.connection && mongoose.connection.readyState;
+  res.json({
+    ok: true,
+    mongoState: state
   });
 });
 
