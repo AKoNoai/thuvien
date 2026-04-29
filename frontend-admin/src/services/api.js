@@ -1,31 +1,10 @@
 import axios from 'axios';
 
-// Determine API URL: try localhost first, fallback to Vercel
-const API_URL = process.env.NODE_ENV === 'development' 
-  ? 'http://localhost:5000/api'
-  : 'https://thuvien-lemon.vercel.app/api';
+const API_URL = 'http://localhost:5000/api';
 
-// Create axios instance with fallback for dev environment
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 3000
 });
-
-// Add fallback interceptor for development mode
-if (process.env.NODE_ENV === 'development') {
-  api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-      // If localhost fails, try Vercel backend
-      if (error.config && error.config.baseURL === 'http://localhost:5000/api') {
-        const config = error.config;
-        config.baseURL = 'https://thuvien-lemon.vercel.app/api';
-        return axios(config);
-      }
-      return Promise.reject(error);
-    }
-  );
-}
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('adminToken');
