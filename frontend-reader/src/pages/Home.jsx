@@ -4,6 +4,8 @@ import { bookAPI } from '../services/api';
 import BookCard from '../components/BookCard';
 import Navbar from '../components/Navbar';
 
+const BACKEND_HINT = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 export default function Home() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -313,7 +315,7 @@ export default function Home() {
               <p className="font-medium">{error}</p>
               {error.includes('Backend') && (
                 <p className="text-sm mt-2">
-                  Hãy đảm bảo Backend đang chạy tại <code>http://localhost:5000</code>
+                  Kiểm tra API backend tại <code>{BACKEND_HINT}</code>
                 </p>
               )}
             </div>

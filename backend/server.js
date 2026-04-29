@@ -15,35 +15,20 @@ try {
 const app = express();
 
 // Middleware
-// Configure CORS: allow origins from `ALLOWED_ORIGINS` (comma-separated),
-// otherwise allow all origins (useful for quick deploys).
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)
-  : [];
+// Permissive CORS for Vercel deployments (token auth via Authorization header).
+const corsOptions = {
+  origin: true,
+  credentials: false,
+  optionsSuccessStatus: 200
+};
 
-let corsMiddleware;
-if (allowedOrigins.length > 0) {
-  const corsOptions = {
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) !== -1) return callback(null, true);
-      return callback(new Error('Not allowed by CORS'));
-    },
-    credentials: true,
-    optionsSuccessStatus: 200
-  };
-  corsMiddleware = cors(corsOptions);
-} else {
-  corsMiddleware = cors();
-}
-
-app.use(corsMiddleware);
-app.options('*', corsMiddleware);
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // Fallback headers in case middleware doesn't run (ensures Access-Control headers)
 app.use((req, res, next) => {
   if (!res.getHeader('Access-Control-Allow-Origin')) {
-    res.setHeader('Access-Control-Allow-Origin', allowedOrigins.length > 0 ? allowedOrigins[0] : '*');
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
   res.setHeader('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] || 'Content-Type,Authorization');
   res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
