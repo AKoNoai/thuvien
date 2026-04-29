@@ -5,7 +5,7 @@ const path = require('path');
 require('dotenv').config();
 
 const dns = require('dns');
-dns.setServers(['1.1.1.1', '8.8.8.8']);
+dns.setServers(['0.0.0.0', '8.8.8.8']);
 
 const app = express();
 
@@ -39,7 +39,15 @@ app.use('/api/users', require('./routes/users'));
 
 // Root route
 app.get('/', (req, res) => {
-  res.send('API Working');
+  res.json({
+    message: 'Library Management System API',
+    version: '1.0.0',
+    endpoints: {
+      auth: '/api/auth',
+      books: '/api/books',
+      borrows: '/api/borrows'
+    }
+  });
 });
 
 // Error handler
