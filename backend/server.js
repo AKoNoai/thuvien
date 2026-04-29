@@ -39,15 +39,7 @@ app.use('/api/users', require('./routes/users'));
 
 // Root route
 app.get('/', (req, res) => {
-  res.json({
-    message: 'Library Management System API',
-    version: '1.0.0',
-    endpoints: {
-      auth: '/api/auth',
-      books: '/api/books',
-      borrows: '/api/borrows'
-    }
-  });
+  res.send('API Working');
 });
 
 // Error handler
