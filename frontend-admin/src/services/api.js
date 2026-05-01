@@ -1,10 +1,15 @@
 import axios from 'axios';
 
+const DEFAULT_PROD_API_URL = 'https://thuvienbd.vercel.app/api';
+const DEV_API_URL = 'http://localhost:5000/api';
+
+const envApiUrl = import.meta.env.VITE_API_URL?.trim();
 const API_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV
-    ? 'http://localhost:5000/api'
-    : 'https://thuvienbd.vercel.app/api');
+  envApiUrl && !(import.meta.env.PROD && /localhost|127\.0\.0\.1/i.test(envApiUrl))
+    ? envApiUrl
+    : import.meta.env.DEV
+      ? DEV_API_URL
+      : DEFAULT_PROD_API_URL;
 
 const api = axios.create({
   baseURL: API_URL,
