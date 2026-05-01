@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { authAPI } from './services/api';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -73,6 +74,7 @@ function App() {
         <Routes>
           <Route path="*" element={<Login onLogin={handleLogin} />} />
         </Routes>
+        <Analytics />
       </BrowserRouter>
     );
   }
@@ -100,6 +102,7 @@ function App() {
           </main>
         </div>
       </div>
+      <Analytics />
     </BrowserRouter>
   );
 }
