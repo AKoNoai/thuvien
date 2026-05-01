@@ -9,7 +9,9 @@ export default function UsersManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const apiOrigin = import.meta.env.VITE_API_ORIGIN || 'https://thuvienbd.vercel.app';
+  const apiOrigin =
+    import.meta.env.VITE_API_ORIGIN ||
+    (import.meta.env.DEV ? 'http://localhost:5000' : 'https://thuvienbd.vercel.app');
 
   useEffect(() => {
     fetchUsers();
